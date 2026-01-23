@@ -32,10 +32,18 @@ cd goakal-kasir-api
 go mod tidy
 ```
 
-### 3. Run the Application
+### 3. Build the Application
+
+To create an optimized binary:
 
 ```bash
-go run main.go
+go build -tags netgo -ldflags '-s -w' -o goakal-kasir-api
+```
+
+### 4. Run the Application
+
+```bash
+./goakal-kasir-api
 ```
 
 The server will start on port `8080`.
