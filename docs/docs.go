@@ -426,10 +426,10 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "id": { "type": "integer" },
+                "created_at": { "type": "string", "format": "date-time" },
                 "name": { "type": "string" },
                 "price": { "type": "number" },
-                "stock": { "type": "integer" },
-                "category_id": { "type": "integer" }
+                "stock": { "type": "integer" }
             }
         }
     }

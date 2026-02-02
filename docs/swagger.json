@@ -419,11 +419,21 @@
         "model.Product": {
             "type": "object",
             "properties": {
-                "id": { "type": "integer" },
-                "name": { "type": "string" },
-                "price": { "type": "number" },
-                "stock": { "type": "integer" },
-                "category_id": { "type": "integer" }
+                "id": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "price": {
+                    "type": "number"
+                },
+                "stock": {
+                    "type": "integer"
+                },
+                "category_id": {
+                    "type": "integer"
+                }
             }
         }
     }
