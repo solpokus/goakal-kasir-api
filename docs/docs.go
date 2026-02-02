@@ -7,18 +7,18 @@ const docTemplate = `{
     "schemes": {{ marshal .Schemes }},
     "swagger": "2.0",
     "info": {
-        "description": "Kasir API",
-        "title": "Kasir API",
+        "description": "{{escape .Description}}",
+        "title": "{{.Title}}",
         "contact": {
-            "name": "Solpokus",
-            "url": "https://github.com/solpokus",
-            "email": "juanrhamadhan@gmail.com"
+            "name": "{{.Contact.Name}}",
+            "url": "{{.Contact.URL}}",
+            "email": "{{.Contact.Email}}"
         },
         "license": {
-            "name": "MIT",
-            "url": "https://github.com/solpokus/kasir-api/blob/main/LICENSE"
+            "name": "{{.License.Name}}",
+            "url": "{{.License.URL}}"
         },
-        "version": "1.0"
+        "version": "{{.Version}}"
     },
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
@@ -212,6 +212,177 @@ const docTemplate = `{
                 }
             }
         },
+        "/api/produk": {
+            "get": {
+                "description": "Get a list of all products",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "products"
+                ],
+                "summary": "Get all products",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/model.Product"
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "Create a new product with the input payload",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "products"
+                ],
+                "summary": "Create a new product",
+                "parameters": [
+                    {
+                        "description": "Product Content",
+                        "name": "product",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/model.Product"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/model.Product"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid input",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/produk/{id}": {
+            "get": {
+                "description": "Get details of a specific product",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "products"
+                ],
+                "summary": "Get a product by ID",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Product ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/model.Product"
+                        }
+                    },
+                    "404": {
+                        "description": "Product not found",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            },
+            "put": {
+                "description": "Update a product's details by ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "products"
+                ],
+                "summary": "Update a product",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Product ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Product Content",
+                        "name": "product",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/model.Product"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/model.Product"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid input or ID",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "Delete a product by ID",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "products"
+                ],
+                "summary": "Delete a product",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Product ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No Content"
+                    },
+                    "400": {
+                        "description": "Invalid ID",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
         "/health": {
             "get": {
                 "description": "Check if the server is running",
@@ -249,6 +420,16 @@ const docTemplate = `{
                 "name": {
                     "type": "string"
                 }
+            }
+        },
+        "model.Product": {
+            "type": "object",
+            "properties": {
+                "id": { "type": "integer" },
+                "name": { "type": "string" },
+                "price": { "type": "number" },
+                "stock": { "type": "integer" },
+                "category_id": { "type": "integer" }
             }
         }
     }

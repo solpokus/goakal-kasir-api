@@ -1,11 +1,14 @@
 package main
 
 import (
+	"log"
+	"net/http"
+
+	"kasir-api/config"
+	"kasir-api/database"
 	_ "kasir-api/docs" // Import generated docs
 	"kasir-api/handler"
 	"kasir-api/repository"
-	"log"
-	"net/http"
 
 	httpSwagger "github.com/swaggo/http-swagger"
 )
@@ -26,21 +29,43 @@ import (
 // @BasePath  /
 
 func main() {
-	// Initialize Repository
-	categoryRepo := repository.NewInMemoryCategoryRepository()
+	// Load Configuration
+	cfg, err := config.LoadConfig()
+	if err != nil {
+		log.Fatalf("Failed to load config: %v", err)
+	}
 
-	// Initialize Handler
+	// Connect to Database
+	db, err := database.Connect(cfg.DatabaseURL)
+	if err != nil {
+		log.Fatalf("Failed to connect to database: %v", err)
+	}
+	defer db.Close()
+
+	// Initialize Repositories
+	categoryRepo := repository.NewInMemoryCategoryRepository()
+	productRepo := repository.NewPostgresProductRepository(db)
+
+	// Initialize Handlers
 	categoryHandler := handler.NewCategoryHandler(categoryRepo)
+	productHandler := handler.NewProductHandler(productRepo)
 
 	// Setup Router
 	mux := http.NewServeMux()
 
-	// Register Routes
+	// Register Routes - Category
 	mux.HandleFunc("GET /categories", categoryHandler.GetCategories)
 	mux.HandleFunc("POST /categories", categoryHandler.CreateCategory)
 	mux.HandleFunc("GET /categories/{id}", categoryHandler.GetCategory)
 	mux.HandleFunc("PUT /categories/{id}", categoryHandler.UpdateCategory)
 	mux.HandleFunc("DELETE /categories/{id}", categoryHandler.DeleteCategory)
+
+	// Register Routes - Product
+	mux.HandleFunc("GET /api/produk", productHandler.GetProducts)
+	mux.HandleFunc("POST /api/produk", productHandler.CreateProduct)
+	mux.HandleFunc("GET /api/produk/{id}", productHandler.GetProduct)
+	mux.HandleFunc("PUT /api/produk/{id}", productHandler.UpdateProduct)
+	mux.HandleFunc("DELETE /api/produk/{id}", productHandler.DeleteProduct)
 
 	// Health Check
 	mux.HandleFunc("GET /health", handler.HealthCheck)
@@ -48,8 +73,8 @@ func main() {
 	// Swagger
 	mux.HandleFunc("GET /swagger/", httpSwagger.WrapHandler)
 
-	log.Println("Server starting on :8080")
-	if err := http.ListenAndServe(":8080", mux); err != nil {
+	log.Printf("Server starting on path :%s", cfg.Port)
+	if err := http.ListenAndServe(":"+cfg.Port, mux); err != nil {
 		log.Fatal(err)
 	}
 }
